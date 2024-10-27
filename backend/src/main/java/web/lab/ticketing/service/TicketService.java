@@ -55,7 +55,7 @@ public class TicketService {
         Ticket ticket = new Ticket(vatin, firstName, lastName);
         return ticketRepository.save(ticket);
     }
-    
+
     // U TicketService klasi
     public Optional<Ticket> getTicketById(UUID id) {
         return ticketRepository.findById(id);
