@@ -2,6 +2,7 @@ package web.lab.ticketing.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import web.lab.ticketing.dto.TicketSummaryDTO;
 import web.lab.ticketing.model.Ticket;
 import web.lab.ticketing.repository.TicketRepository;
 
@@ -15,6 +16,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 
 import java.io.ByteArrayOutputStream;
+import java.util.stream.Collectors;
 
 @Service
 public class TicketService {
@@ -29,6 +31,17 @@ public class TicketService {
     public List<Ticket> getAllTickets() {
         return ticketRepository.findAll();
     }
+
+    public List<TicketSummaryDTO> getAllTicketSummaries() {
+        return ticketRepository.findAll().stream()
+                .map(ticket -> new TicketSummaryDTO(ticket.getId(), ticket.getCreatedAt(), ticket.getDeletedAt()))
+                .collect(Collectors.toList());
+    }
+
+    public long getTicketCount() {
+        return ticketRepository.count();
+    }
+
 
     // Metoda za kreiranje nove ulaznice
     public Ticket createTicket(String vatin, String firstName, String lastName) {

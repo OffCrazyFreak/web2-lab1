@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import web.lab.ticketing.dto.TicketSummaryDTO;
 import web.lab.ticketing.model.Ticket;
 import web.lab.ticketing.service.TicketService;
 
@@ -29,12 +30,16 @@ public class TicketController {
         this.ticketService = ticketService;
     }
 
-    // Endpoint za dohvaćanje svih ulaznica (samo UUID i vrijeme izrade)
+    // Endpoint za dohvaćanje svih ulaznica summary
     @GetMapping
-    public List<TicketSummary> getAllTickets() {
-        return ticketService.getAllTickets().stream()
-                .map(ticket -> new TicketSummary(ticket.getId(), ticket.getCreatedAt()))
-                .collect(Collectors.toList());
+    public List<TicketSummaryDTO> getAllTickets() {
+        return ticketService.getAllTicketSummaries();
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<Long> getTicketCount() {
+        long count = ticketService.getTicketCount();
+        return ResponseEntity.ok(count);
     }
 
     // Endpoint za generiranje nove ulaznice
