@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.*;
 import web.lab.ticketing.model.Ticket;
 import web.lab.ticketing.service.TicketService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -23,6 +25,14 @@ public class TicketController {
     @Autowired
     public TicketController(TicketService ticketService) {
         this.ticketService = ticketService;
+    }
+
+    // Endpoint za dohvaćanje svih ulaznica (samo UUID i vrijeme izrade)
+    @GetMapping
+    public List<TicketSummary> getAllTickets() {
+        return ticketService.getAllTickets().stream()
+                .map(ticket -> new TicketSummary(ticket.getId(), ticket.getCreatedAt()))
+                .collect(Collectors.toList());
     }
 
     // Endpoint za generiranje nove ulaznice
@@ -66,5 +76,25 @@ public class TicketController {
     public ResponseEntity<List<Ticket>> getTicketsByVatin(@PathVariable String vatin) {
         List<Ticket> tickets = ticketService.getTicketsByVatin(vatin);
         return ResponseEntity.ok(tickets);
+    }
+
+    // Pomoćna klasa za prikaz osnovnih podataka o ulaznicama
+    public static class TicketSummary {
+        private UUID id;
+        private LocalDateTime createdAt;
+
+        public TicketSummary(UUID id, LocalDateTime createdAt) {
+            this.id = id;
+            this.createdAt = createdAt;
+        }
+
+        // Getteri
+        public UUID getId() {
+            return id;
+        }
+
+        public LocalDateTime getCreatedAt() {
+            return createdAt;
+        }
     }
 }

@@ -28,6 +28,10 @@ public class TicketService {
         this.ticketRepository = ticketRepository;
     }
 
+    public List<Ticket> getAllTickets() {
+        return ticketRepository.findAll();
+    }
+
     // Metoda za kreiranje nove ulaznice
     public Ticket createTicket(String vatin, String firstName, String lastName) {
         // Provjera broja postojećih ulaznica za OIB
