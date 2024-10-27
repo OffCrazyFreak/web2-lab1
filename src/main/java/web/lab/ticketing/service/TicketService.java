@@ -15,8 +15,6 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 
 @Service
 public class TicketService {
@@ -36,7 +34,7 @@ public class TicketService {
     public Ticket createTicket(String vatin, String firstName, String lastName) {
         // Provjera broja postojećih ulaznica za OIB
         if (ticketRepository.countByVatin(vatin) >= 3) {
-            throw new IllegalArgumentException("OIB već ima maksimalno dozvoljeni broj ulaznica.");
+            throw new IllegalArgumentException("A maximum of 3 tickets per VATIN is allowed.");
         }
         // Spremanje nove ulaznice
         Ticket ticket = new Ticket(vatin, firstName, lastName);

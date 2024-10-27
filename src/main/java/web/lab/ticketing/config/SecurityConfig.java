@@ -15,10 +15,11 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Onemogućite CSRF za razvojne svrhe
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/tickets/**").permitAll() // Omogućite javni pristup /api/tickets
-                        .anyRequest().authenticated() // Zahtijeva autentifikaciju za sve ostale zahtjeve
+                        .requestMatchers("/api/tickets", "/api/tickets/").permitAll() // Omogućite pristup GET i POST na /api/tickets
+                        .requestMatchers("/api/tickets/{uuid}").authenticated() // Pristup na /api/tickets/{uuid} zahtijeva prijavu
+                        .anyRequest().authenticated()
                 )
-                .httpBasic(withDefaults()); // Koristi Basic Authentication
+                .httpBasic(withDefaults()); // Basic Authentication za prijavljene korisnike
 
         return http.build();
     }

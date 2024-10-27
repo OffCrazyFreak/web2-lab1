@@ -14,7 +14,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/tickets")
@@ -37,7 +39,15 @@ public class TicketController {
 
     // Endpoint za generiranje nove ulaznice
     @PostMapping
-    public ResponseEntity<?> createTicket(@RequestBody TicketRequest ticketRequest) {
+    public ResponseEntity<?> createTicket(@Valid @RequestBody TicketRequest ticketRequest, BindingResult bindingResult) {
+        // Validation check
+        if (bindingResult.hasErrors()) {
+            String errorMessages = bindingResult.getFieldErrors().stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .collect(Collectors.joining(", "));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessages);
+        }
+
         try {
             Ticket ticket = ticketService.createTicket(
                     ticketRequest.getVatin(),
@@ -45,13 +55,11 @@ public class TicketController {
                     ticketRequest.getLastName()
             );
 
-            // Kreira URL za QR kod (ovdje treba biti format "/api/tickets/{uuid}")
+            // Generate QR code URL
             String ticketUrl = "http://localhost:8080/api/tickets/" + ticket.getId();
-
-            // Generira QR kod
             byte[] qrCodeImage = ticketService.generateQrCode(ticketUrl);
 
-            // Vraća QR kod kao PNG sliku
+            // Return QR code as PNG image
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.IMAGE_PNG);
             return ResponseEntity.ok().headers(headers).body(qrCodeImage);
@@ -59,7 +67,7 @@ public class TicketController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Došlo je do greške pri generiranju QR koda.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while generating the QR code.");
         }
     }
 
