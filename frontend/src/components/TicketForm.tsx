@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -32,7 +32,11 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
     },
   });
 
+  const [error, setError] = useState<string | null>(null);
+
   const onSubmit = async (data: TicketFormValues) => {
+    setError(null); // Resetuje grešku pre svakog novog slanja
+
     try {
       const response = await fetch("/api/tickets", {
         method: "POST",
@@ -42,12 +46,18 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
         body: JSON.stringify(data),
       });
 
-      if (!response.ok) throw new Error("Failed to create ticket");
+      if (!response.ok) {
+        // Učitaj tekstualnu poruku greške umesto JSON-a
+        const errorMessage = (await response.text()).replace(/, /g, "\n");
+        setError(errorMessage);
+        return;
+      }
 
       form.reset(); // Resetira polja forme
       onSuccess(); // Poziva se za ponovno učitavanje tablice
     } catch (error) {
       console.error("Error:", error);
+      setError("Failed to create ticket. Please try again later.");
     }
   };
 
@@ -106,6 +116,9 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
           Submit
         </Button>
       </form>
+
+      {/* Prikaz greške ako postoji */}
+      {error && <pre className="text-red-500 mt-4">{error}</pre>}
     </Form>
   );
 }
