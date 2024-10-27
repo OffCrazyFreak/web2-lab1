@@ -26,6 +26,21 @@ export default function HomePage() {
     }
   };
 
+  const deleteTicket = async (id: string) => {
+    try {
+      const response = await fetch(`/api/tickets/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        fetchTickets();
+      } else {
+        console.error("Failed to delete ticket");
+      }
+    } catch (error) {
+      console.error("Error deleting ticket:", error);
+    }
+  };
+
   useEffect(() => {
     fetchTickets();
   }, []);
@@ -47,7 +62,7 @@ export default function HomePage() {
         {ticketCount === 0 ? (
           <p>No tickets available</p>
         ) : (
-          <TicketsTable tickets={tickets || []} />
+          <TicketsTable tickets={tickets || []} onDelete={deleteTicket} />
         )}
       </Suspense>
     </main>

@@ -6,6 +6,7 @@ import web.lab.ticketing.dto.TicketSummaryDTO;
 import web.lab.ticketing.model.Ticket;
 import web.lab.ticketing.repository.TicketRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,6 +36,7 @@ public class TicketService {
     public List<TicketSummaryDTO> getAllTicketSummaries() {
         return ticketRepository.findAll().stream()
                 .map(ticket -> new TicketSummaryDTO(ticket.getId(), ticket.getCreatedAt(), ticket.getDeletedAt()))
+                .filter(ticket -> ticket.getDeletedAt() == null)
                 .collect(Collectors.toList());
     }
 
@@ -69,5 +71,18 @@ public class TicketService {
         ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
         MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
         return pngOutputStream.toByteArray();
+    }
+
+    public boolean softDeleteTicket(UUID id) {
+        Optional<Ticket> optionalTicket = ticketRepository.findById(id);
+
+        if (optionalTicket.isPresent()) {
+            Ticket ticket = optionalTicket.get();
+            ticket.setDeletedAt(LocalDateTime.now());
+            ticketRepository.save(ticket);
+            return true;
+        }
+
+        return false;
     }
 }

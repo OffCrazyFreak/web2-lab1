@@ -9,10 +9,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EyeIcon } from "@heroicons/react/24/solid";
+import { EyeIcon, TrashIcon } from "@heroicons/react/24/solid";
 
 interface TableProps {
-  tickets: Ticket[] | null;
+  tickets: Ticket[];
+  onDelete: (id: string) => void;
 }
 
 interface Ticket {
@@ -21,7 +22,7 @@ interface Ticket {
   deletedAt: string | null;
 }
 
-export default function TicketsTable({ tickets }: TableProps) {
+export default function TicketsTable({ tickets, onDelete }: TableProps) {
   return (
     <Table>
       <TableHeader>
@@ -38,13 +39,20 @@ export default function TicketsTable({ tickets }: TableProps) {
             <TableCell>
               {moment(ticket.createdAt).format("DD.MM.YYYY. HH:mm:ss")}
             </TableCell>
-            <TableCell className="text-center px-0">
+            <TableCell className="space-x-2 text-center px-0">
               <Link
                 href={`/tickets/${ticket.id}`}
-                className="inline-flex items-center justify-center p-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white"
+                className="inline-flex items-center justify-center flex p-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white"
               >
                 <EyeIcon className="h-5 w-5 text-white" />
               </Link>
+
+              <button
+                onClick={() => onDelete(ticket.id)}
+                className="inline-flex items-center justify-center p-2 rounded-md bg-red-500 hover:bg-red-600 text-white"
+              >
+                <TrashIcon className="h-5 w-5 text-white" />
+              </button>
             </TableCell>
           </TableRow>
         ))}

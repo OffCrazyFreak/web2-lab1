@@ -84,30 +84,14 @@ public class TicketController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Endpoint za dohvaćanje svih ulaznica za dani OIB (VATIN)
-    @GetMapping("/vatin/{vatin}")
-    public ResponseEntity<List<Ticket>> getTicketsByVatin(@PathVariable String vatin) {
-        List<Ticket> tickets = ticketService.getTicketsByVatin(vatin);
-        return ResponseEntity.ok(tickets);
-    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteTicket(@PathVariable UUID id) {
+        boolean isDeleted = ticketService.softDeleteTicket(id);
 
-    // Pomoćna klasa za prikaz osnovnih podataka o ulaznicama
-    public static class TicketSummary {
-        private UUID id;
-        private LocalDateTime createdAt;
-
-        public TicketSummary(UUID id, LocalDateTime createdAt) {
-            this.id = id;
-            this.createdAt = createdAt;
-        }
-
-        // Getteri
-        public UUID getId() {
-            return id;
-        }
-
-        public LocalDateTime getCreatedAt() {
-            return createdAt;
+        if (isDeleted) {
+            return ResponseEntity.ok("Ticket soft deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ticket not found.");
         }
     }
 }
