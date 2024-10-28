@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>web.lab</groupId>
 	<artifactId>ticketing</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1</version>
 	<name>TicketingApp</name>
 	<description>Aplikacija za generiranje QR ulaznica s autentifikacijom</description>
 	<url/>
