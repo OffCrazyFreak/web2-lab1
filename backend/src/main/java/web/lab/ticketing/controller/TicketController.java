@@ -3,6 +3,8 @@ package web.lab.ticketing.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import web.lab.ticketing.dto.TicketSummaryDTO;
 import web.lab.ticketing.model.Ticket;
@@ -44,8 +46,11 @@ public class TicketController {
 
     // Endpoint za generiranje nove ulaznice
     @PostMapping
-    public ResponseEntity<?> createTicket(@Valid @RequestBody TicketRequest ticketRequest, BindingResult bindingResult) {
-        // Validation check
+    public ResponseEntity<?> createTicket(
+            @Valid @RequestBody TicketRequest ticketRequest,
+            BindingResult bindingResult) {
+
+        // Validacija
         if (bindingResult.hasErrors()) {
             String errorMessages = bindingResult.getFieldErrors().stream()
                     .map(error -> error.getField() + ": " + error.getDefaultMessage())
@@ -60,11 +65,11 @@ public class TicketController {
                     ticketRequest.getLastName()
             );
 
-            // Generate QR code URL
+            // Generiranje URL-a za QR kod
             String ticketUrl = "http://localhost:8080/api/tickets/" + ticket.getId();
             byte[] qrCodeImage = ticketService.generateQrCode(ticketUrl);
 
-            // Return QR code as PNG image
+            // Vraćanje QR koda kao PNG slike
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.IMAGE_PNG);
             return ResponseEntity.ok().headers(headers).body(qrCodeImage);
@@ -75,6 +80,7 @@ public class TicketController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while generating the QR code.");
         }
     }
+
 
     // Endpoint za dohvaćanje ulaznice prema UUID-u
     @GetMapping("/{id}")
