@@ -12,13 +12,14 @@ interface Ticket {
 }
 
 interface TicketDetailsProps {
-  params: {
-    uuid: string;
-  };
+  params: Promise<{ uuid: string }>;
 }
 
-export default function TicketDetails({ params }: TicketDetailsProps) {
-  const { uuid } = params;
+export default async function TicketDetailsPage({
+  params,
+}: TicketDetailsProps) {
+  const resolvedParams = await params; // Rješavanje Promise-a
+  const { uuid } = resolvedParams; // Sada pristupaš uuid-u
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
