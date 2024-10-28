@@ -4,6 +4,9 @@ import React, { useEffect, useState, Suspense } from "react";
 import TicketForm from "@/components/TicketForm";
 import TicketsTableSkeleton from "@/components/TicketsTableSkeleton";
 
+import { useUser } from "@auth0/nextjs-auth0/client";
+import Link from "next/link";
+
 const TicketsTable = React.lazy(() => import("@/components/TicketsTable"));
 
 interface Ticket {
@@ -13,6 +16,8 @@ interface Ticket {
 }
 
 export default function HomePage() {
+  const { user, error, isLoading } = useUser();
+
   const [tickets, setTickets] = useState<Ticket[] | null>(null);
   const ticketCount = tickets?.length || 0;
 
@@ -45,12 +50,30 @@ export default function HomePage() {
     fetchTickets();
   }, []);
 
+  if (isLoading) return <p>Učitavanje...</p>;
+  // if (error) return <p>Greška: {error.message}</p>;
+
   return (
     <main className="p-6 space-y-6">
       <h1 className="text-3xl font-bold mb-4">
         Ticketing System{" "}
         {tickets !== null && ticketCount > 0 && `(${ticketCount})`}
       </h1>
+
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : user ? (
+        <>
+          <p>Welcome, {user.name}</p>
+          <a href="/api/auth/logout" className="text-blue-500">
+            Logout
+          </a>
+        </>
+      ) : (
+        <a href="/api/auth/login" className="text-blue-500">
+          Login
+        </a>
+      )}
 
       <TicketForm
         onSuccess={() => {
