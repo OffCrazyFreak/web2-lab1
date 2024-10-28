@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import QRCodeDialog from "@/components/QRCodeDialog";
 
 interface TicketFormValues {
   vatin: string;
@@ -33,6 +34,8 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
   });
 
   const [error, setError] = useState<string | null>(null);
+  const [qrCodeImage, setQrCodeImage] = useState<string | null>(null); // State za QR kod sliku
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // Držimo stanje za otvaranje dialoga
 
   const onSubmit = async (data: TicketFormValues) => {
     setError(null); // Resetuje grešku pre svakog novog slanja
@@ -52,6 +55,15 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
         setError(errorMessage);
         return;
       }
+
+      // Konvertujemo odgovor u Blob i zatim u Base64
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setQrCodeImage(reader.result as string);
+        setIsDialogOpen(true); // Otvori dialog kad je QR kod postavljen
+      };
+      reader.readAsDataURL(blob);
 
       form.reset(); // Resetira polja forme
       onSuccess(); // Poziva se za ponovno učitavanje tablice
@@ -116,6 +128,12 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
           Submit
         </Button>
       </form>
+
+      <QRCodeDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        qrCodeImage={qrCodeImage}
+      />
 
       {/* Prikaz greške ako postoji */}
       {error && <pre className="text-red-500 mt-4">{error}</pre>}
