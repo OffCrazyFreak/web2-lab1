@@ -1,4 +1,4 @@
-# Geographic Information System (GIS)
+# Web 2 - Lab 1
 
 ## Deploy instructions
 ### Server setup:
